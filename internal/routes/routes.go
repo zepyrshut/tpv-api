@@ -6,6 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"github.com/zepyrshut/tpv/internal/config"
 	"github.com/zepyrshut/tpv/internal/handlers"
+	"github.com/zepyrshut/tpv/internal/middleware"
 )
 
 var app *config.Application
@@ -14,18 +15,23 @@ func NewRoutes(a *config.Application) {
 	app = a
 }
 
-func Routes() *httprouter.Router {
+func Routes() http.Handler {
 
 	router := httprouter.New()
 
-	router.HandlerFunc(http.MethodGet, "/status", handlers.GetStatusHandler)
+	// Status
+	router.HandlerFunc(http.MethodGet, "/status", handlers.Repo.GetStatusHandler)
 
-	router.HandlerFunc(http.MethodGet, "/movie/:id", handlers.GetOneMovie)
-	router.HandlerFunc(http.MethodGet, "/movies", handlers.GetAllMovies)
+	// Lounges
+	router.HandlerFunc(http.MethodGet, "/lounges", handlers.Repo.GetAllLounges)
 
-	router.HandlerFunc(http.MethodGet, "/lounges", handlers.GetAllLounges)
-	//router.HandlerFunc(http.MethodGet, "/lounge/:id_salon/tables", handlers.GetTableFromLounge)
+	// Tables
+	router.HandlerFunc(http.MethodGet, "/tables/:id", handlers.Repo.GetTableFromLounge)
 
-	return router
+	// Items
+	router.HandlerFunc(http.MethodGet, "/items", handlers.Repo.GetAllItems)
+	router.HandlerFunc(http.MethodGet, "/item/:id", handlers.Repo.GetOneItem)
+
+	return middleware.EnableCORS(router)
 
 }

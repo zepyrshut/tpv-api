@@ -1,11 +1,13 @@
-package models
+package dbrepo
 
 import (
 	"context"
 	"time"
+
+	"github.com/zepyrshut/tpv/internal/models"
 )
 
-func (m *DBModel) AllTablesFromSelectedLounge(id int) ([]*Table, error) {
+func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]*models.Table, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -15,9 +17,7 @@ func (m *DBModel) AllTablesFromSelectedLounge(id int) ([]*Table, error) {
 			  FROM 
 			  	mesa 
 			  WHERE 
-			  	id_salon = ? 
-			  OR 
-			  	num_mesa = 0
+			  	id_salon = ?
 	`
 	rows, err := m.DB.QueryContext(ctx, query, id)
 	if err != nil {
@@ -25,9 +25,9 @@ func (m *DBModel) AllTablesFromSelectedLounge(id int) ([]*Table, error) {
 	}
 	defer rows.Close()
 
-	var tables []*Table
+	var tables []*models.Table
 	for rows.Next() {
-		var table Table
+		var table models.Table
 		err := rows.Scan(
 			&table.NumOfTable,
 			&table.NumOfDiners,

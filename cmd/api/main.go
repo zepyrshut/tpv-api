@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,59 +11,53 @@ import (
 	"github.com/zepyrshut/tpv/internal/config"
 	"github.com/zepyrshut/tpv/internal/driver"
 	"github.com/zepyrshut/tpv/internal/handlers"
-	"github.com/zepyrshut/tpv/internal/models"
 	"github.com/zepyrshut/tpv/internal/routes"
 )
 
 const version = "0.1.0"
+const environment = "development"
+const port = "127.0.0.1:8081"
+
+var app config.Application
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 func main() {
-	app := &config.Application{
-		Config: config.Config{
-			Port: 8080,
-			Env:  "development",
-		},
-		Logger: log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime),
-	}
 
-	st := &config.AppStatus{
-		Environment: app.Config.Env,
-		Version:     version,
-	}
-
-	flag.IntVar(&app.Config.Port, "port", 8081, "Port to listen")
-	flag.StringVar(&app.Config.Env, "env", "development", "Environment")
+	flag.StringVar(&app.Config.Port, "port", port, "Port to listen")
+	flag.StringVar(&app.Status.Environment, "env", environment, "Environment")
+	flag.StringVar(&app.Status.Version, "version", version, "Version")
 	flag.StringVar(&app.Config.DB.DSN, "dsn", "root:infusorio@tcp(localhost:4306)/sysmehotel?parseTime=true", "Database DSN")
 	flag.Parse()
 
-	logger := log.New(os.Stdout, "http: ", log.Ldate|log.Ltime)
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
 
-	db, err := driver.OpenDB(app.Config.DB.DSN)
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
+
+	db, err := driver.ConnectSQL(app.Config.DB.DSN)
 	if err != nil {
-		logger.Fatal(err)
+		errorLog.Fatal(err)
 	}
-	defer db.Close()
+	defer db.SQL.Close()
 
-	app.DB = models.DBModel{DB: db}
-
-	routes.NewRoutes(app)
-	handlers.NewStatusHandler(app, st)
-	handlers.NewLoungeHandler(app, st)
-	handlers.NewTableHandler(app, st)
-	handlers.NewMovieHandler(app, st)
+	routes.NewRoutes(&app)
+	repo := handlers.NewRepo(&app, db)
+	handlers.NewHandlers(repo)
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.Config.Port),
+		Addr:         app.Config.Port,
 		Handler:      routes.Routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-	logger.Println("Starting server on port", app.Config.Port)
+	infoLog.Println("Starting server on port", app.Config.Port)
 
 	err = srv.ListenAndServe()
 	if err != nil {
-		log.Println(err)
+		errorLog.Println(err)
 	}
 
 }

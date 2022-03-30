@@ -3,23 +3,14 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/zepyrshut/tpv/internal/config"
 	"github.com/zepyrshut/tpv/internal/util"
 )
 
-var appLounge *config.Application
-var stLounge *config.AppStatus
+func (m *Repository) GetAllLounges(w http.ResponseWriter, r *http.Request) {
 
-func NewLoungeHandler(a *config.Application, st *config.AppStatus) {
-	appLounge = a
-	stLounge = st
-}
-
-func GetAllLounges(w http.ResponseWriter, r *http.Request) {
-
-	lounges, err := appLounge.DB.AllLounges()
+	lounges, err := m.DB.AllLounges()
 	if err != nil {
-		appLounge.Logger.Println(err)
+		m.App.ErrorLog.Println(err)
 		util.ErrorJSON(w, err)
 		return
 	}

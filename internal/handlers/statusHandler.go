@@ -7,25 +7,17 @@ import (
 	"github.com/zepyrshut/tpv/internal/config"
 )
 
-var appHandler *config.Application
-var stHanlder *config.AppStatus
-
-func NewStatusHandler(a *config.Application, st *config.AppStatus) {
-	appHandler = a
-	stHanlder = st
-}
-
-func GetStatusHandler(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetStatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	currentStatus := config.AppStatus{
-		Status:      "available",
-		Environment: appHandler.Config.Env,
-		Version:     stHanlder.Version,
+		Status:      "OK",
+		Environment: m.App.Status.Environment,
+		Version:     m.App.Status.Version,
 	}
 
 	js, err := json.MarshalIndent(currentStatus, "", "\t")
 	if err != nil {
-		appHandler.Logger.Println(err)
+		m.App.ErrorLog.Println(err)
 	}
 
 	w.Header().Set("Content-Type", "application/json")

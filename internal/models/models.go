@@ -36,7 +36,7 @@ type Table struct {
 	Width       int          `json:"width"`
 	Height      int          `json:"height"`
 	Rate        string       `json:"id_tarifa"`
-	PictureBusy sql.NullByte `json:"imagenocupada"` // probar string
+	PictureBusy sql.NullByte `json:"imagenocupada"`
 	Lounge      string       `json:"id_salon"`
 	IsCounter   string       `json:"esbarra"`
 }
@@ -46,7 +46,7 @@ type Lounge struct {
 	Id      string `json:"id_salon"`
 	Name    string `json:"nombre"`
 	Notes   string `json:"notas"`
-	Picture []byte `json:"imagen"` // probar string
+	Picture []byte `json:"imagen"`
 }
 
 type ItemType struct {
@@ -59,16 +59,16 @@ type ItemType struct {
 	VisibilityIn string       `json:"visibleen"`
 	SortOrder    int          `json:"sort_order"`
 	Father       string       `json:"padre"`
-	friendly     string       `json:"friendly"`
-	html         string       `json:"html"`
-	sinc         string       `json:"sinc"`
-	alias        string       `json:"alias"`
+	Friendly     string       `json:"friendly"`
+	Html         string       `json:"html"`
+	Sinc         string       `json:"sinc"`
+	Alias        string       `json:"alias"`
 	OpenCartSync string       `json:"sincopencart"`
 	HtmlSync     string       `json:"sinchtml"`
 }
 
 type Item struct {
-	CompanyId            string       `json:"id_empresa"`
+	CompanyId            string       `json:"id_empresa,omitempty"`
 	HubId                string       `json:"id_centro"`
 	ItemTypeId           string       `json:"id_tipo_comg"`
 	ItemId               string       `json:"id_complementog"`
@@ -134,38 +134,4 @@ type Item struct {
 	PrinterB             string       `json:"impresora2"`
 	KitchenBlock         int          `json:"bloque_cocina"`
 	Fifo                 string       `json:"fifo"`
-}
-
-// ========================================================
-// Testing zone
-// ========================================================
-
-type Movie struct {
-	Id          int            `json:"id"`
-	Title       string         `json:"nombre"`
-	Description string         `json:"descripcion"`
-	Year        int            `json:"year"`
-	ReleaseDate time.Time      `json:"release_date"`
-	Runtime     int            `json:"runtime"`
-	Rating      int            `json:"rating"`
-	MPAARating  string         `json:"mpaa_rating"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	MovieGenre  map[int]string `json:"genres"`
-}
-
-type Genre struct {
-	Id        int       `json:"id"`
-	GenreName string    `json:"genre_rame"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type MovieGenre struct {
-	Id        int       `json:"id"`
-	MovieId   int       `json:"movie_id"`
-	GenreId   int       `json:"genre_id"`
-	Genre     Genre     `json:"genre"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
 }

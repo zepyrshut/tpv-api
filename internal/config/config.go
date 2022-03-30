@@ -2,8 +2,6 @@ package config
 
 import (
 	"log"
-
-	"github.com/zepyrshut/tpv/internal/models"
 )
 
 type AppStatus struct {
@@ -13,7 +11,7 @@ type AppStatus struct {
 }
 
 type Config struct {
-	Port int
+	Port string
 	Env  string
 	DB   struct {
 		DSN string
@@ -21,7 +19,8 @@ type Config struct {
 }
 
 type Application struct {
-	Config Config
-	Logger *log.Logger
-	DB     models.DBModel
+	Status   AppStatus
+	Config   Config
+	InfoLog  *log.Logger
+	ErrorLog *log.Logger
 }
