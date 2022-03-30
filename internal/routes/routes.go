@@ -3,10 +3,11 @@ package routes
 import (
 	"net/http"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/zepyrshut/tpv/internal/config"
 	"github.com/zepyrshut/tpv/internal/handlers"
-	"github.com/zepyrshut/tpv/internal/middleware"
+	midd "github.com/zepyrshut/tpv/internal/middleware"
 )
 
 var app *config.Application
@@ -17,21 +18,26 @@ func NewRoutes(a *config.Application) {
 
 func Routes() http.Handler {
 
-	router := httprouter.New()
+	mux := chi.NewRouter()
+
+	mux.Use(middleware.Recoverer)
+	mux.Use(midd.NoSurf)
+	mux.Use(midd.EnableCORS)
 
 	// Status
-	router.HandlerFunc(http.MethodGet, "/status", handlers.Repo.GetStatusHandler)
+	mux.Get("/status", handlers.Repo.GetStatusHandler)
 
 	// Lounges
-	router.HandlerFunc(http.MethodGet, "/lounges", handlers.Repo.GetAllLounges)
+	mux.Get("/lounges", handlers.Repo.GetAllLounges)
 
 	// Tables
-	router.HandlerFunc(http.MethodGet, "/tables/:id", handlers.Repo.GetTableFromLounge)
+	mux.Get("/tables", handlers.Repo.GetTableFromLounge)
 
 	// Items
-	router.HandlerFunc(http.MethodGet, "/items", handlers.Repo.GetAllItems)
-	router.HandlerFunc(http.MethodGet, "/item/:id", handlers.Repo.GetOneItem)
+	mux.Get("/items/all", handlers.Repo.GetAllItems)
+	mux.Get("/item/{id}", handlers.Repo.GetOneItem)
+	mux.Get("/items/enabled", handlers.Repo.GetAllEnabledItems)
 
-	return middleware.EnableCORS(router)
+	return mux
 
 }

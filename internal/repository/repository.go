@@ -8,6 +8,7 @@ type DBRepo interface {
 	// Items
 	OneItem(id int) (*models.Item, error)
 	AllItems() ([]*models.Item, error)
+	AllEnabledItems() ([]*models.Item, error)
 
 	// Lounges
 	AllLounges() ([]*models.Lounge, error)

@@ -19,8 +19,9 @@ type Config struct {
 }
 
 type Application struct {
-	Status   AppStatus
-	Config   Config
-	InfoLog  *log.Logger
-	ErrorLog *log.Logger
+	Status       AppStatus
+	Config       Config
+	InProduction bool
+	InfoLog      *log.Logger
+	ErrorLog     *log.Logger
 }

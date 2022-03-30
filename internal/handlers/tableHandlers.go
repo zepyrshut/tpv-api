@@ -5,14 +5,13 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 	"github.com/zepyrshut/tpv/internal/util"
 )
 
 func (m *Repository) GetTableFromLounge(w http.ResponseWriter, r *http.Request) {
-	params := httprouter.ParamsFromContext(r.Context())
 
-	loungeId, err := strconv.Atoi(params.ByName("id"))
+	loungeId, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
 	if err != nil {
 		m.App.ErrorLog.Println(errors.New("invalid id parameter"))
 		util.ErrorJSON(w, err)

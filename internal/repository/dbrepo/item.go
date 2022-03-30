@@ -41,6 +41,42 @@ func (m *mariaDBRepo) AllItems() ([]*models.Item, error) {
 	return items, nil
 }
 
+func (m *mariaDBRepo) AllEnabledItems() ([]*models.Item, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT 
+				id_complementog, complementog, precio 
+			  FROM 
+			  	complementog
+			  WHERE
+			  	Venta = 'S'
+	`
+	rows, err := m.DB.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []*models.Item
+	for rows.Next() {
+		var item models.Item
+		err := rows.Scan(
+			&item.ItemId,
+			&item.Name,
+			&item.Price,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		items = append(items, &item)
+
+	}
+
+	return items, nil
+}
+
 func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
