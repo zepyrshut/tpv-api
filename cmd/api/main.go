@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -18,7 +19,7 @@ import (
 // Environment variables
 const version = "0.1.0"
 const environment = "development"
-const port = "127.0.0.1:8081"
+const port = 8081
 const inProduction = false
 const dsn = "root:infusorio@tcp(localhost:4306)/sysmehotel?parseTime=true"
 
@@ -29,7 +30,7 @@ var errorLog *log.Logger
 
 func main() {
 
-	flag.StringVar(&app.Config.Port, "port", port, "Port to listen")
+	flag.IntVar(&app.Config.Port, "port", port, "Port to listen")
 	flag.StringVar(&app.Status.Environment, "env", environment, "Environment")
 	flag.StringVar(&app.Status.Version, "version", version, "Version")
 	flag.BoolVar(&app.InProduction, "production", inProduction, "Production")
@@ -54,7 +55,7 @@ func main() {
 	middleware.NewMiddleware(&app)
 
 	srv := &http.Server{
-		Addr:         app.Config.Port,
+		Addr:         fmt.Sprintf(":%d", app.Config.Port),
 		Handler:      routes.Routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

@@ -11,7 +11,7 @@ type AppStatus struct {
 }
 
 type Config struct {
-	Port string
+	Port int
 	Env  string
 	DB   struct {
 		DSN string

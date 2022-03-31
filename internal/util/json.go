@@ -17,6 +17,7 @@ func WriteJSON(w http.ResponseWriter, status int, data interface{}, wrap string)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Character-Encoding", "utf-8")
 	w.WriteHeader(status)
 	w.Write(js)
 

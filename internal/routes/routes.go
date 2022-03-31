@@ -38,6 +38,10 @@ func Routes() http.Handler {
 	mux.Get("/item/{id}", handlers.Repo.GetOneItem)
 	mux.Get("/items/enabled", handlers.Repo.GetAllEnabledItems)
 
+	// ItemsType
+	mux.Get("/types/all", handlers.Repo.GetAllTypes)
+	mux.Get("/type/{id}", handlers.Repo.GetOneType)
+
 	return mux
 
 }

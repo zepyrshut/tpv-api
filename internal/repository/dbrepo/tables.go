@@ -7,6 +7,7 @@ import (
 	"github.com/zepyrshut/tpv/internal/models"
 )
 
+// 
 func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]*models.Table, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
