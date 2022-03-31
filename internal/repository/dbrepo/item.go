@@ -81,12 +81,16 @@ func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := `SELECT 
-				id_complementog, complementog, precio 
-			  FROM 
-			   	complementog 
-			  WHERE 
-			   	id_complementog = ?
+	query := `SELECT
+				it.id_complementog, it.complementog, it.precio, ty.tipo_comg
+  			  FROM
+				tipo_comg ty	  
+  			  INNER JOIN
+				complementog it
+  			  ON
+	  			it.id_tipo_comg = ty.id_tipo_comg
+  			  WHERE
+	  			it.id_complementog  = ?
 	`
 	row := m.DB.QueryRowContext(ctx, query, id)
 
@@ -96,6 +100,7 @@ func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 		&item.ItemId,
 		&item.Name,
 		&item.Price,
+		&item.ItemTypeName,
 	)
 
 	if err = row.Err(); err != nil {
@@ -104,5 +109,3 @@ func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 
 	return &item, nil
 }
-
-
