@@ -7,7 +7,7 @@ import (
 	"github.com/zepyrshut/tpv/internal/models"
 )
 
-func (m *mariaDBRepo) AllItems() ([]*models.Item, error) {
+func (m *mariaDBRepo) AllItems() ([]*models.ItemEntity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -22,9 +22,9 @@ func (m *mariaDBRepo) AllItems() ([]*models.Item, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.Item
+	var items []*models.ItemEntity
 	for rows.Next() {
-		var item models.Item
+		var item models.ItemEntity
 		err := rows.Scan(
 			&item.ItemId,
 			&item.Name,
@@ -41,16 +41,23 @@ func (m *mariaDBRepo) AllItems() ([]*models.Item, error) {
 	return items, nil
 }
 
-func (m *mariaDBRepo) AllEnabledItems() ([]*models.Item, error) {
+func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	query := `SELECT 
-				id_complementog, complementog, precio 
-			  FROM 
-			  	complementog
-			  WHERE
-			  	Venta = 'S'
+	query := `SELECT
+				it.id_complementog, it.complementog, it.PVP, it.favorito, it.impresora, ty.id_tipo_comg,
+				ty.padre, ty.tipo_comg, it.date_mod, it.date_sinc
+			  FROM
+	  			tipo_comg ty    
+			  INNER JOIN
+	 			complementog it
+			  ON
+	  			it.id_tipo_comg = ty.id_tipo_comg
+	 		  WHERE 
+				it.Venta = 'S' 
+			  AND 
+	  			it.cafeteria = 'S'
 	`
 	rows, err := m.DB.QueryContext(ctx, query)
 	if err != nil {
@@ -58,17 +65,26 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.Item, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.Item
+	var items []*models.ItemRead
 	for rows.Next() {
-		var item models.Item
+		var item models.ItemRead
 		err := rows.Scan(
-			&item.ItemId,
+			&item.Id,
 			&item.Name,
-			&item.Price,
+			&item.PublicPrice,
+			&item.Fav,
+			&item.Printer,
+			&item.CategoryId,
+			&item.ParentCategoryId,
+			&item.CategoryName,
+			&item.CreatedAt,
+			&item.UpdatedAt,
 		)
 		if err != nil {
 			return nil, err
 		}
+
+		m.appendParentCategoryName(&item)
 
 		items = append(items, &item)
 
@@ -77,7 +93,7 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.Item, error) {
 	return items, nil
 }
 
-func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
+func (m *mariaDBRepo) OneItem(id int) (*models.ItemEntity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -94,13 +110,11 @@ func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 	`
 	row := m.DB.QueryRowContext(ctx, query, id)
 
-	var item models.Item
-
+	var item models.ItemEntity
 	err := row.Scan(
 		&item.ItemId,
 		&item.Name,
 		&item.Price,
-		&item.ItemTypeName,
 	)
 
 	if err = row.Err(); err != nil {
@@ -108,4 +122,49 @@ func (m *mariaDBRepo) OneItem(id int) (*models.Item, error) {
 	}
 
 	return &item, nil
+}
+
+func (m *mariaDBRepo) appendParentCategoryName(item *models.ItemRead) (*models.ItemRead, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	query := `SELECT 
+				child.id_tipo_comg,	child.tipo_comg, parent.id_tipo_comg, parent.tipo_comg
+			  FROM
+				tipo_comg 
+			  AS 
+			  	child
+			  JOIN 
+			    tipo_comg 
+			  AS 
+			  	parent 
+			  ON 
+			  	parent.id_tipo_comg = child.padre
+			  WHERE 
+			  	child.id_tipo_comg = ?
+	`
+	rows, _ := m.DB.QueryContext(ctx, query, item.CategoryId)
+	defer rows.Close()
+
+	parentCategoryName := make(map[string]string)
+	for rows.Next() {
+		var pcn models.ItemRead
+		err := rows.Scan(
+			&pcn.Id,
+			&pcn.Name,
+			&pcn.ParentCategoryId,
+			&pcn.ParentCategoryName,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		parentCategoryName[pcn.ParentCategoryId.String] = pcn.ParentCategoryName.String
+
+	}
+
+	item.ParentCategoryName.String = parentCategoryName[item.ParentCategoryId.String]
+
+	return item, nil
+
 }

@@ -69,47 +69,5 @@ func (m *mariaDBRepo) OneType(id int) (*models.ItemType, error) {
 
 	}
 
-	m.appendItem(&typex)
-
 	return &typex, nil
-}
-
-func (m *mariaDBRepo) appendItem(typex *models.ItemType) (*models.ItemType, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-
-	query := `SELECT
-				it.id_complementog, it.complementog, it.precio, ty.tipo_comg
-  			 FROM
-				tipo_comg ty	  
-  			 LEFT JOIN
-				complementog it
-  			 ON
-	  			it.id_tipo_comg = ty.id_tipo_comg
-  			 WHERE
-	  			ty.id_tipo_comg  = ?
-	`
-	rows, _ := m.DB.QueryContext(ctx, query, typex.Id)
-	defer rows.Close()
-
-	items := make(map[string]string)
-	for rows.Next() {
-		var it models.Item
-		var ty models.ItemType
-		err := rows.Scan(
-			&it.ItemId,
-			&it.Name,
-			&it.Price,
-			&ty.ItemTypeName,
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		items[it.ItemId] = it.Name
-	}
-
-	typex.Items = items
-
-	return typex, nil
 }

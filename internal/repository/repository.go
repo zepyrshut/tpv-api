@@ -6,9 +6,9 @@ import (
 
 type DBRepo interface {
 	// Items
-	OneItem(id int) (*models.Item, error)
-	AllItems() ([]*models.Item, error)
-	AllEnabledItems() ([]*models.Item, error)
+	OneItem(id int) (*models.ItemEntity, error)
+	AllItems() ([]*models.ItemEntity, error)
+	AllEnabledItems() ([]*models.ItemRead, error)
 
 	// ItemTypes
 	AllTypes() ([]*models.ItemType, error)
@@ -19,8 +19,4 @@ type DBRepo interface {
 
 	// Tables
 	AllTablesFromSelectedLounge(id int) ([]*models.Table, error)
-
-	// Movies
-	AllMovies() ([]*models.Movie, error)
-	OneMovie(id int) (*models.Movie, error)
 }

@@ -23,6 +23,10 @@ func NewModels(db *sql.DB) Models {
 	}
 }
 
+// ========================================================
+// Entity
+// ========================================================
+
 // In the database the Table struct is called "mesa".
 type Table struct {
 	NumOfTable  string `json:"Num_Mesa,omitempty"`
@@ -50,26 +54,25 @@ type Lounge struct {
 
 // In the database the ItemType struct is called "tipo_comg".
 type ItemType struct {
-	Id           string            `json:"id_tipo_comg,omitempty"`
-	ItemTypeName string            `json:"tipo_comg,omitempty"`
-	Picture      []byte            `json:"imagen,omitempty"`
-	Destination  string            `json:"destino,omitempty"`
-	CoffeeShop   string            `json:"cafeteria,omitempty"`
-	Color        string            `json:"color,omitempty"`
-	VisibilityIn string            `json:"visibleen,omitempty"`
-	SortOrder    int               `json:"sort_order,omitempty"`
-	Father       string            `json:"padre,omitempty"`
-	Friendly     string            `json:"friendly,omitempty"`
-	Html         string            `json:"html,omitempty"`
-	Sinc         string            `json:"sinc,omitempty"`
-	Alias        string            `json:"alias,omitempty"`
-	OpenCartSync string            `json:"sincopencart,omitempty"`
-	HtmlSync     string            `json:"sinchtml,omitempty"`
-	Items        map[string]string `json:"items,omitempty"`
+	Id           string `json:"id_tipo_comg,omitempty"`
+	ItemTypeName string `json:"tipo_comg,omitempty"`
+	Picture      []byte `json:"imagen,omitempty"`
+	Destination  string `json:"destino,omitempty"`
+	CoffeeShop   string `json:"cafeteria,omitempty"`
+	Color        string `json:"color,omitempty"`
+	VisibilityIn string `json:"visibleen,omitempty"`
+	SortOrder    int    `json:"sort_order,omitempty"`
+	Father       string `json:"padre,omitempty"`
+	Friendly     string `json:"friendly,omitempty"`
+	Html         string `json:"html,omitempty"`
+	Sinc         string `json:"sinc,omitempty"`
+	Alias        string `json:"alias,omitempty"`
+	OpenCartSync string `json:"sincopencart,omitempty"`
+	HtmlSync     string `json:"sinchtml,omitempty"`
 }
 
 // In the database the Item struct is called "complementog".
-type Item struct {
+type ItemEntity struct {
 	CompanyId            string     `json:"id_empresa,omitempty"`
 	HubId                string     `json:"id_centro,omitempty"`
 	ItemTypeId           string     `json:"id_tipo_comg,omitempty"`
@@ -136,39 +139,22 @@ type Item struct {
 	PrinterB             string     `json:"impresora2,omitempty"`
 	KitchenBlock         int        `json:"bloque_cocina,omitempty"`
 	Fifo                 string     `json:"fifo,omitempty"`
-	ItemTypeName         string     `json:"tipo_comg,omitempty"`
 }
 
 // ========================================================
-// Testing zone
+// DTO
 // ========================================================
 
-type Movie struct {
-	Id          int            `json:"id"`
-	Title       string         `json:"nombre"`
-	Description string         `json:"descripcion"`
-	Year        int            `json:"year"`
-	ReleaseDate time.Time      `json:"release_date"`
-	Runtime     int            `json:"runtime"`
-	Rating      int            `json:"rating"`
-	MPAARating  string         `json:"mpaa_rating"`
-	CreatedAt   time.Time      `json:"created_at"`
-	UpdatedAt   time.Time      `json:"updated_at"`
-	MovieGenre  map[int]string `json:"genres"`
-}
-
-type Genre struct {
-	Id        int       `json:"id"`
-	GenreName string    `json:"genre_rame"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-type MovieGenre struct {
-	Id        int       `json:"id"`
-	MovieId   int       `json:"movie_id"`
-	GenreId   int       `json:"genre_id"`
-	Genre     Genre     `json:"genre"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+type ItemRead struct {
+	Id                 string         `json:"id"`
+	Name               string         `json:"name"`
+	PublicPrice        float32        `json:"public_price"`
+	Fav                string         `json:"fav"`
+	CategoryId         string         `json:"category_id"`
+	ParentCategoryId   sql.NullString `json:"parent_category"`
+	CategoryName       string         `json:"category_name"`
+	ParentCategoryName sql.NullString `json:"parent_category_name"`
+	Printer            string         `json:"printer"`
+	UpdatedAt          *time.Time     `json:"updated_at"`
+	CreatedAt          *time.Time     `json:"created_at"`
 }
