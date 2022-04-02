@@ -148,13 +148,24 @@ type ItemEntity struct {
 type ItemRead struct {
 	Id                 string         `json:"id"`
 	Name               string         `json:"name"`
-	PublicPrice        float32        `json:"public_price"`
-	Fav                string         `json:"fav"`
-	CategoryId         string         `json:"category_id"`
-	ParentCategoryId   sql.NullString `json:"parent_category"`
-	CategoryName       string         `json:"category_name"`
-	ParentCategoryName sql.NullString `json:"parent_category_name"`
-	Printer            string         `json:"printer"`
-	UpdatedAt          *time.Time     `json:"updated_at"`
-	CreatedAt          *time.Time     `json:"created_at"`
+	PublicPrice        float32        `json:"public_price,omitempty"`
+	Fav                string         `json:"fav,omitempty"`
+	CategoryId         string         `json:"category_id,omitempty"`
+	ParentCategoryId   sql.NullString `json:"parent_category,omitempty"`
+	CategoryName       string         `json:"category_name,omitempty"`
+	ParentCategoryName string         `json:"parent_category_name,omitempty"`
+	Printer            string         `json:"printer,omitempty"`
+	UpdatedAt          *time.Time     `json:"updated_at,omitempty"`
+	CreatedAt          *time.Time     `json:"created_at,omitempty"`
+}
+
+type ItemReadAppendCategory struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type ItemCategoryRead struct {
+	Id           string              `json:"id"`
+	CategoryName string              `json:"category_name,omitempty"`
+	Items        map[string]ItemRead `json:"items,omitempty"`
 }

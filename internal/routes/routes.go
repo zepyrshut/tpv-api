@@ -39,8 +39,8 @@ func Routes() http.Handler {
 	mux.Get("/items/enabled", handlers.Repo.GetAllEnabledItems)
 
 	// ItemsType
-	mux.Get("/types/all", handlers.Repo.GetAllTypes)
-	mux.Get("/type/{id}", handlers.Repo.GetOneType)
+	mux.Get("/categories/all", handlers.Repo.GetAllCategories)
+	mux.Get("/category/{id}", handlers.Repo.GetOneCategory)
 
 	return mux
 

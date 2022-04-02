@@ -6,13 +6,13 @@ import (
 
 type DBRepo interface {
 	// Items
-	OneItem(id int) (*models.ItemEntity, error)
+	OneItem(id int) (*models.ItemRead, error)
 	AllItems() ([]*models.ItemEntity, error)
 	AllEnabledItems() ([]*models.ItemRead, error)
 
-	// ItemTypes
-	AllTypes() ([]*models.ItemType, error)
-	OneType(id int) (*models.ItemType, error)
+	// ItemCategories
+	AllCategories() ([]*models.ItemCategoryRead, error)
+	OneCategory(category int) (*models.ItemCategoryRead, error)
 
 	// Lounges
 	AllLounges() ([]*models.Lounge, error)

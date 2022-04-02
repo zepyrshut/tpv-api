@@ -77,8 +77,8 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
 			&item.CategoryId,
 			&item.ParentCategoryId,
 			&item.CategoryName,
-			&item.CreatedAt,
 			&item.UpdatedAt,
+			&item.CreatedAt,
 		)
 		if err != nil {
 			return nil, err
@@ -93,33 +93,43 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
 	return items, nil
 }
 
-func (m *mariaDBRepo) OneItem(id int) (*models.ItemEntity, error) {
+func (m *mariaDBRepo) OneItem(id int) (*models.ItemRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	query := `SELECT
-				it.id_complementog, it.complementog, it.precio, ty.tipo_comg
-  			  FROM
-				tipo_comg ty	  
-  			  INNER JOIN
+				it.id_complementog, it.complementog, it.PVP, it.favorito, it.impresora, 
+				ty.id_tipo_comg, ty.padre, ty.tipo_comg, it.date_mod, it.date_sinc
+			  FROM
+				tipo_comg ty    
+			  INNER JOIN
 				complementog it
-  			  ON
-	  			it.id_tipo_comg = ty.id_tipo_comg
-  			  WHERE
-	  			it.id_complementog  = ?
+			  ON
+				it.id_tipo_comg = ty.id_tipo_comg
+			  WHERE 
+				it.id_complementog = ?
 	`
 	row := m.DB.QueryRowContext(ctx, query, id)
 
-	var item models.ItemEntity
+	var item models.ItemRead
 	err := row.Scan(
-		&item.ItemId,
+		&item.Id,
 		&item.Name,
-		&item.Price,
+		&item.PublicPrice,
+		&item.Fav,
+		&item.Printer,
+		&item.CategoryId,
+		&item.ParentCategoryId,
+		&item.CategoryName,
+		&item.UpdatedAt,
+		&item.CreatedAt,
 	)
 
 	if err = row.Err(); err != nil {
 		return nil, err
 	}
+
+	m.appendParentCategoryName(&item)
 
 	return &item, nil
 }
@@ -159,11 +169,11 @@ func (m *mariaDBRepo) appendParentCategoryName(item *models.ItemRead) (*models.I
 			return nil, err
 		}
 
-		parentCategoryName[pcn.ParentCategoryId.String] = pcn.ParentCategoryName.String
+		parentCategoryName[pcn.ParentCategoryId.String] = pcn.ParentCategoryName
 
 	}
 
-	item.ParentCategoryName.String = parentCategoryName[item.ParentCategoryId.String]
+	item.ParentCategoryName = parentCategoryName[item.ParentCategoryId.String]
 
 	return item, nil
 

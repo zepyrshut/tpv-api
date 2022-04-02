@@ -9,18 +9,18 @@ import (
 	"github.com/zepyrshut/tpv/internal/util"
 )
 
-func (m *Repository) GetAllTypes(w http.ResponseWriter, r *http.Request) {
-	types, err := m.DB.AllTypes()
+func (m *Repository) GetAllCategories(w http.ResponseWriter, r *http.Request) {
+	categories, err := m.DB.AllCategories()
 	if err != nil {
 		m.App.ErrorLog.Println(err)
 		util.ErrorJSON(w, err)
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, types, "types")
+	util.WriteJSON(w, http.StatusOK, categories, "categories")
 }
 
-func (m *Repository) GetOneType(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetOneCategory(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
 	if err != nil {
@@ -29,12 +29,12 @@ func (m *Repository) GetOneType(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	typex, err := m.DB.OneType(id)
+	category, err := m.DB.OneCategory(id)
 	if err != nil {
 		m.App.ErrorLog.Println(err)
 		util.ErrorJSON(w, err)
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, typex, "type")
+	util.WriteJSON(w, http.StatusOK, category, "category")
 }
