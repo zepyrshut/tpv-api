@@ -3,18 +3,22 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/zepyrshut/tpv/internal/util"
+	"github.com/gin-gonic/gin"
 )
 
-func (m *Repository) GetAllLounges(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetAllLounges(c *gin.Context) {
 
 	lounges, err := m.DB.AllLounges()
 	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status": "malformed_request",
+			"error":  err.Error(),
+		})
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, lounges, "lounges")
-
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"lounges": lounges,
+	})
 }

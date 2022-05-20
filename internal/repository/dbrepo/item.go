@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/zepyrshut/tpv/internal/models"
+	"github.com/zepyrshut/tpv-api/internal/models"
 )
 
-func (m *mariaDBRepo) AllItems() ([]*models.ItemEntity, error) {
+func (m *mariaDBRepo) AllItems() ([]models.ItemEntity, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -22,7 +22,7 @@ func (m *mariaDBRepo) AllItems() ([]*models.ItemEntity, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.ItemEntity
+	var items []models.ItemEntity
 	for rows.Next() {
 		var item models.ItemEntity
 		err := rows.Scan(
@@ -34,14 +34,14 @@ func (m *mariaDBRepo) AllItems() ([]*models.ItemEntity, error) {
 			return nil, err
 		}
 
-		items = append(items, &item)
+		items = append(items, item)
 
 	}
 
 	return items, nil
 }
 
-func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
+func (m *mariaDBRepo) AllEnabledItems() ([]models.ItemRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -65,7 +65,7 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
 	}
 	defer rows.Close()
 
-	var items []*models.ItemRead
+	var items []models.ItemRead
 	for rows.Next() {
 		var item models.ItemRead
 		err := rows.Scan(
@@ -84,16 +84,16 @@ func (m *mariaDBRepo) AllEnabledItems() ([]*models.ItemRead, error) {
 			return nil, err
 		}
 
-		m.appendParentCategoryName(&item)
+		m.appendParentCategoryName(item)
 
-		items = append(items, &item)
+		items = append(items, item)
 
 	}
 
 	return items, nil
 }
 
-func (m *mariaDBRepo) OneItem(id int) (*models.ItemRead, error) {
+func (m *mariaDBRepo) OneItem(id int) (models.ItemRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -126,15 +126,15 @@ func (m *mariaDBRepo) OneItem(id int) (*models.ItemRead, error) {
 	)
 
 	if err = row.Err(); err != nil {
-		return nil, err
+		return item, err
 	}
 
-	m.appendParentCategoryName(&item)
+	m.appendParentCategoryName(item)
 
-	return &item, nil
+	return item, nil
 }
 
-func (m *mariaDBRepo) appendParentCategoryName(item *models.ItemRead) (*models.ItemRead, error) {
+func (m *mariaDBRepo) appendParentCategoryName(item models.ItemRead) (models.ItemRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -166,7 +166,7 @@ func (m *mariaDBRepo) appendParentCategoryName(item *models.ItemRead) (*models.I
 			&pcn.ParentCategoryName,
 		)
 		if err != nil {
-			return nil, err
+			return pcn, err
 		}
 
 		parentCategoryName[pcn.ParentCategoryId.String] = pcn.ParentCategoryName

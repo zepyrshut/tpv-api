@@ -1,10 +1,12 @@
 package middleware
 
 import (
-	"net/http"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 
-	"github.com/justinas/nosurf"
-	"github.com/zepyrshut/tpv/internal/config"
+	"github.com/zepyrshut/tpv-api/internal/config"
 )
 
 var app *config.Application
@@ -13,24 +15,18 @@ func NewMiddleware(a *config.Application) {
 	app = a
 }
 
-// Cross Origin Resource Sharing
-func EnableCORS(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
-		next.ServeHTTP(w, r)
-	})
+func Sessions(name string) gin.HandlerFunc {
+	store := cookie.NewStore([]byte(app.Config.Session.Secret))
+	return sessions.Sessions(name, store)
 }
 
-// CSRF protection
-func NoSurf(next http.Handler) http.Handler {
-	csrfHandler := nosurf.New(next)
+// Cross Origin Resource Sharing
+func CORSMiddleware() gin.HandlerFunc {
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowCredentials = true
+	config.AllowHeaders = []string{"Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "accept", "origin", "Cache-Control", "X-Requested-With"}
+	config.AllowMethods = []string{"POST", "OPTIONS", "GET", "PUT"}
 
-	csrfHandler.SetBaseCookie(http.Cookie{
-		HttpOnly: true,
-		Path:     "/",
-		Secure:   app.InProduction,
-		SameSite: http.SameSiteLaxMode,
-	})
-	return csrfHandler
+	return cors.New(config)
 }

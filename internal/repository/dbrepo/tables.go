@@ -4,11 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/zepyrshut/tpv/internal/models"
+	"github.com/zepyrshut/tpv-api/internal/models"
 )
 
-// 
-func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]*models.Table, error) {
+func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]models.Table, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -26,7 +25,7 @@ func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]*models.Table, erro
 	}
 	defer rows.Close()
 
-	var tables []*models.Table
+	var tables []models.Table
 	for rows.Next() {
 		var table models.Table
 		err := rows.Scan(
@@ -48,8 +47,7 @@ func (m *mariaDBRepo) AllTablesFromSelectedLounge(id int) ([]*models.Table, erro
 			return nil, err
 		}
 
-		tables = append(tables, &table)
-
+		tables = append(tables, table)
 	}
 
 	return tables, nil

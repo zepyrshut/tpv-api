@@ -1,13 +1,11 @@
 package routes
 
 import (
-	"net/http"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/zepyrshut/tpv/internal/config"
-	"github.com/zepyrshut/tpv/internal/handlers"
-	midd "github.com/zepyrshut/tpv/internal/middleware"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/zepyrshut/tpv-api/internal/config"
+	"github.com/zepyrshut/tpv-api/internal/handlers"
+	"github.com/zepyrshut/tpv-api/internal/middleware"
 )
 
 var app *config.Application
@@ -16,32 +14,33 @@ func NewRoutes(a *config.Application) {
 	app = a
 }
 
-func Routes() http.Handler {
+func Routes() *gin.Engine {
 
-	mux := chi.NewRouter()
+	router := gin.Default()
 
-	mux.Use(middleware.Recoverer)
-	mux.Use(midd.NoSurf)
-	mux.Use(midd.EnableCORS)
+	// CORS and CSRF protection
+	router.Use(cors.Default())
+	router.Use(middleware.Sessions("session"))
+	router.Use(middleware.CORSMiddleware())
 
 	// Status
-	mux.Get("/status", handlers.Repo.GetStatusHandler)
+	router.GET("/status", handlers.Repo.GetStatusHandler)
 
 	// Lounges
-	mux.Get("/lounges", handlers.Repo.GetAllLounges)
+	router.GET("/lounges", handlers.Repo.GetAllLounges)
 
 	// Tables
-	mux.Get("/tables", handlers.Repo.GetTableFromLounge)
+	router.GET("/tables/:id", handlers.Repo.GetTableFromLounge)
 
 	// Items
-	mux.Get("/items/all", handlers.Repo.GetAllItems)
-	mux.Get("/item/{id}", handlers.Repo.GetOneItem)
-	mux.Get("/items/enabled", handlers.Repo.GetAllEnabledItems)
+	router.GET("/items/all", handlers.Repo.GetAllItems)
+	router.GET("/item/:id", handlers.Repo.GetOneItem)
+	router.GET("/items/enabled", handlers.Repo.GetAllEnabledItems)
 
 	// ItemsType
-	mux.Get("/categories/all", handlers.Repo.GetAllCategories)
-	mux.Get("/category/{id}", handlers.Repo.GetOneCategory)
+	router.GET("/categories/all", handlers.Repo.GetAllCategories)
+	router.GET("/category/:id", handlers.Repo.GetOneCategory)
 
-	return mux
+	return router
 
 }

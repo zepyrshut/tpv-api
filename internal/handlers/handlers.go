@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"github.com/zepyrshut/tpv/internal/config"
-	"github.com/zepyrshut/tpv/internal/driver"
-	"github.com/zepyrshut/tpv/internal/repository"
-	"github.com/zepyrshut/tpv/internal/repository/dbrepo"
+	"github.com/zepyrshut/tpv-api/internal/config"
+	"github.com/zepyrshut/tpv-api/internal/database"
+	"github.com/zepyrshut/tpv-api/internal/repository"
+	"github.com/zepyrshut/tpv-api/internal/repository/dbrepo"
 )
 
 var Repo *Repository
@@ -14,7 +14,7 @@ type Repository struct {
 	DB  repository.DBRepo
 }
 
-func NewRepo(a *config.Application, db *driver.DB) *Repository {
+func NewRepo(a *config.Application, db *database.DB) *Repository {
 	return &Repository{
 		App: a,
 		DB:  dbrepo.NewMariaRepo(db.SQL, a),

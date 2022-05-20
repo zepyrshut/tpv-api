@@ -1,4 +1,4 @@
-package driver
+package database
 
 import (
 	"context"
@@ -14,7 +14,7 @@ var dbConn = &DB{}
 
 const maxOpenDbConn = 10
 const maxIdleDbConn = 5
-const maxDbLifetime = 5 * time.Minute
+const maxDbLifetime = time.Minute * 5
 
 // Create a database pool.
 func ConnectSQL(dsn string) (*DB, error) {
@@ -35,7 +35,6 @@ func ConnectSQL(dsn string) (*DB, error) {
 	}
 
 	return dbConn, nil
-
 }
 
 // Tries to ping the database.
@@ -63,5 +62,4 @@ func OpenDB(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
-
 }

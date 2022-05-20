@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/zepyrshut/tpv/internal/models"
+	"github.com/zepyrshut/tpv-api/internal/models"
 )
 
-func (m *mariaDBRepo) AllCategories() ([]*models.ItemCategoryRead, error) {
+func (m *mariaDBRepo) AllCategories() ([]models.ItemCategoryRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -22,7 +22,7 @@ func (m *mariaDBRepo) AllCategories() ([]*models.ItemCategoryRead, error) {
 	}
 	defer rows.Close()
 
-	var categories []*models.ItemCategoryRead
+	var categories []models.ItemCategoryRead
 	for rows.Next() {
 		var category models.ItemCategoryRead
 		err := rows.Scan(
@@ -33,14 +33,14 @@ func (m *mariaDBRepo) AllCategories() ([]*models.ItemCategoryRead, error) {
 			return nil, err
 		}
 
-		categories = append(categories, &category)
+		categories = append(categories, category)
 
 	}
 
 	return categories, nil
 }
 
-func (m *mariaDBRepo) OneCategory(id int) (*models.ItemCategoryRead, error) {
+func (m *mariaDBRepo) OneCategory(id int) (models.ItemCategoryRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -51,10 +51,8 @@ func (m *mariaDBRepo) OneCategory(id int) (*models.ItemCategoryRead, error) {
 			  WHERE
 			  	id_tipo_comg = ?
 	`
-	rows, err := m.DB.QueryContext(ctx, query, id)
-	if err != nil {
-		return nil, err
-	}
+	rows, _ := m.DB.QueryContext(ctx, query, id)
+	// TODO check if rows is empty
 	defer rows.Close()
 
 	var oneCategory models.ItemCategoryRead
@@ -64,17 +62,17 @@ func (m *mariaDBRepo) OneCategory(id int) (*models.ItemCategoryRead, error) {
 			&oneCategory.CategoryName,
 		)
 		if err != nil {
-			return nil, err
+			return oneCategory, err
 		}
 
 	}
 
-	m.appendItems(&oneCategory)
+	m.appendItems(oneCategory)
 
-	return &oneCategory, nil
+	return oneCategory, nil
 }
 
-func (m *mariaDBRepo) appendItems(oneType *models.ItemCategoryRead) (*models.ItemCategoryRead, error) {
+func (m *mariaDBRepo) appendItems(oneType models.ItemCategoryRead) (models.ItemCategoryRead, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
@@ -96,7 +94,7 @@ func (m *mariaDBRepo) appendItems(oneType *models.ItemCategoryRead) (*models.Ite
 			&item.Name,
 		)
 		if err != nil {
-			return nil, err
+			return oneType, err
 		}
 		itemsAppend[item.Id] = item
 

@@ -3,8 +3,8 @@ package dbrepo
 import (
 	"database/sql"
 
-	"github.com/zepyrshut/tpv/internal/config"
-	"github.com/zepyrshut/tpv/internal/repository"
+	"github.com/zepyrshut/tpv-api/internal/config"
+	"github.com/zepyrshut/tpv-api/internal/repository"
 )
 
 type mariaDBRepo struct {

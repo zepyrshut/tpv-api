@@ -1,34 +1,34 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/zepyrshut/tpv/internal/util"
+	"github.com/gin-gonic/gin"
 )
 
-func (m *Repository) GetTableFromLounge(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetTableFromLounge(c *gin.Context) {
 
-	loungeId, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
+	loungeId, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		m.App.ErrorLog.Println(errors.New("invalid id parameter"))
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status": "malformed_id",
+			"error":  err.Error(),
+		})
 		return
 	}
 
 	tables, err := m.DB.AllTablesFromSelectedLounge(loungeId)
 	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"status": "not_found",
+			"error":  err.Error(),
+		})
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, tables, "tables")
-	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
-		return
-	}
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"tables": tables,
+	})
 }

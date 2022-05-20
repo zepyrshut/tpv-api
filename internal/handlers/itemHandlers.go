@@ -1,51 +1,64 @@
 package handlers
 
 import (
-	"errors"
 	"net/http"
 	"strconv"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/zepyrshut/tpv/internal/util"
+	"github.com/gin-gonic/gin"
 )
 
-func (m *Repository) GetAllItems(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetAllItems(c *gin.Context) {
 	items, err := m.DB.AllItems()
 	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status": "not_found",
+			"error":  err.Error(),
+		})
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, items, "items")
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"items":  items,
+	})
 }
 
-func (m *Repository) GetAllEnabledItems(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) GetAllEnabledItems(c *gin.Context) {
 	items, err := m.DB.AllEnabledItems()
 	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"status": "not_found",
+		})
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, items, "items")
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"items":  items,
+	})
 }
 
-func (m *Repository) GetOneItem(w http.ResponseWriter, r *http.Request) {
-
-	id, err := strconv.Atoi(chi.URLParamFromCtx(r.Context(), "id"))
+func (m *Repository) GetOneItem(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		m.App.ErrorLog.Println(errors.New("invalid id parameter"))
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"status": "malformed_id",
+			"error":  err.Error(),
+		})
 		return
 	}
 
 	item, err := m.DB.OneItem(id)
 	if err != nil {
-		m.App.ErrorLog.Println(err)
-		util.ErrorJSON(w, err)
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{
+			"status": "not_found",
+			"error":  err.Error(),
+		})
 		return
 	}
 
-	util.WriteJSON(w, http.StatusOK, item, "item")
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"item":   item,
+	})
 }
